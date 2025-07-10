@@ -78,6 +78,12 @@ public class ConfigScreen extends JFrame{
 
                 /*ExhibitionScreen exhibition = new ExhibitionScreen(resources);
                 exhibition.setVisible(true);*/
+                nameResourceField.setText("");
+                maxInstancesField.setText("");
+
+                addPlaceholder(nameResourceField, "Ex: Impressora");
+                addPlaceholder(maxInstancesField, "Ex: 5");
+                
             } catch (IllegalArgumentException ex) {
                 JOptionPane.showMessageDialog(this, "Insira valores válidos.");
             }
