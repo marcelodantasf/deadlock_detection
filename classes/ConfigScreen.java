@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import javax.swing.*;
 
 /*Antes de iniciar a simulação, o usuário deverá informar todos os tipos de recursos existentes
@@ -16,12 +17,15 @@ public class ConfigScreen extends JFrame{
     private JTextField maxInstancesField;
 
     public int idCount = 0;
+    public ArrayList<Recurso> resources;
 
     public ConfigScreen() {
         setTitle("Configuração Inicial");
-        setSize(400, 200);
+        setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+
+        resources = new ArrayList<Recurso>();
 
         JLabel nameResourceLabel = new JLabel("Nome do recurso:");
         nameResourceField = new JTextField(10);
@@ -35,6 +39,27 @@ public class ConfigScreen extends JFrame{
 
         startButton.addActionListener((ActionEvent e) -> {
             try {
+                if(resources.isEmpty()){
+                    JOptionPane.showMessageDialog(this, "Nenhum recurso adicionado.");
+                    return;
+                }
+                /*ExhibitionScreen exhibition = new ExhibitionScreen(resources);
+                exhibition.setVisible(true);*/
+                System.out.println();
+                for(int i = 0; i< resources.size(); i++){
+                    System.out.println("recursos cadastrados: " + resources.get(i).toString());
+                }
+                dispose();
+
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, "Insira valores válidos.");
+            }
+        });
+
+        JButton addButton = new JButton("Adicionar");
+
+        addButton.addActionListener((ActionEvent e) -> {
+            try {
                 if(nameResourceField.getText().equals("Ex: Impressora") || maxInstancesField.getText().equals("Ex: 5")) {
                     JOptionPane.showMessageDialog(this, "Preencha todos os campos corretamente.");
                     return;
@@ -46,16 +71,19 @@ public class ConfigScreen extends JFrame{
                     return;
                 }
 
-                /*ExhibitionScreen exhibition = new ExhibitionScreen();
-                exhibition.setVisible(true);*/
-                dispose();
+                idCount +=1 ;
+                Recurso r = new Recurso(nameResourceField.getText(), idCount, maxInstances);
+                resources.add(r);
+                System.out.println("[ADD]: " + resources.get(idCount-1).toString());
 
+                /*ExhibitionScreen exhibition = new ExhibitionScreen(resources);
+                exhibition.setVisible(true);*/
             } catch (IllegalArgumentException ex) {
                 JOptionPane.showMessageDialog(this, "Insira valores válidos.");
             }
         });
 
-        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         panel.add(nameResourceLabel);
@@ -64,6 +92,7 @@ public class ConfigScreen extends JFrame{
         panel.add(maxInstancesField);
         panel.add(new JLabel()); // Espaço vazio
         panel.add(startButton);
+        panel.add(addButton);
 
         add(panel);
 

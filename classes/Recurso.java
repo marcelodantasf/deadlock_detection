@@ -44,6 +44,11 @@ public class Recurso {
         this.maxInstances = maxInstances;
     }
 
+    @Override
+    public String toString() {
+        return "Recurso [name=" + name + ", id=" + id + ", maxInstances=" + maxInstances + "]";
+    }
+
     /*public void setCurrentInstances(int currentInstances) {
         this.currentInstances = currentInstances;
     }*/
