@@ -3,5 +3,5 @@ import javax.swing.*;
 //import java.awt.*;
 
 public class ExhibitionScreen extends JFrame{
-    private ArrayList<Recurso> resourceList;
+    private ArrayList<Resource> resourceList;
 }
