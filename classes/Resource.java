@@ -1,7 +1,7 @@
 import java.util.concurrent.Semaphore;
 
 public class Resource {
-    public static Semaphore currentInstances;
+    public Semaphore currentInstances;
 
     private String name;
     private int id;
@@ -13,7 +13,7 @@ public class Resource {
         this.id = id;
         this.maxInstances = maxInstances;
         //this.currentInstances = maxInstances;
-        Resource.currentInstances = new Semaphore(maxInstances);
+        this.currentInstances = new Semaphore(maxInstances);
     }
     
     /*public int getCurrentInstances() {
