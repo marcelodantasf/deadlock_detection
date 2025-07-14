@@ -21,15 +21,15 @@ public class Resource {
     }*/
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public int getId() {
-        return id;
+        return this.id;
     }
 
     public int getMaxInstances() {
-        return maxInstances;
+        return this.maxInstances;
     }
 
     public void setName(String name) {
@@ -46,7 +46,7 @@ public class Resource {
 
     @Override
     public String toString() {
-        return "Recurso [name=" + name + ", id=" + id + ", maxInstances=" + maxInstances + "]";
+        return "Recurso [name=" + name + ", id=" + id + ", instances=" + (maxInstances - currentInstances.availablePermits()) +  ", maxInstances=" + maxInstances + "]";
     }
 
     /*public void setCurrentInstances(int currentInstances) {
