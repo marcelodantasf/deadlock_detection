@@ -12,8 +12,8 @@ public class OS extends Thread{
         this.verificationInterval = verificationInterval;
     }
 
-    public void wait(){
-        int time = this.deltaT;
+    public void waiting(){
+        int time = this.verificationInterval;
         LocalTime initial = LocalTime.now();
         while (true) { // função de espera por X segundos
             LocalTime now = LocalTime.now();
@@ -29,7 +29,7 @@ public class OS extends Thread{
     @Override
     public void run() {
         while (true) { 
-            //wait();
+            waiting();
             //verify();
 
         }
