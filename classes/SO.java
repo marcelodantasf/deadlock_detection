@@ -1,18 +1,18 @@
 import java.time.Duration;
 import java.time.LocalTime;
 
-public class SO {
-    private int deltaT;
+public class OS extends Thread{
+    private int verificationInterval;
 
-    public SO(int deltaT){
-        this.deltaT = deltaT;
+    public int getVerificationInterval() {
+        return verificationInterval;
     }
 
-    public int getDeltaT() {
-        return this.deltaT;
+    public OS(int verificationInterval) {
+        this.verificationInterval = verificationInterval;
     }
 
-    public void waiting(){
+    public void wait(){
         int time = this.deltaT;
         LocalTime initial = LocalTime.now();
         while (true) { // função de espera por X segundos
@@ -25,15 +25,13 @@ public class SO {
             }
         }
     }
+    
+    @Override
+    public void run() {
+        while (true) { 
+            //wait();
+            //verify();
 
-    public void check(){
-
-    }
-
-    public void run(){
-        while(true){
-            waiting();
-            check();
         }
     }
 }

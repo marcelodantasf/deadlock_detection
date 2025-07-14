@@ -11,22 +11,22 @@ parâmetros:
 • Quantidade de instâncias do recurso (Ex: 5)
 Obs.: O número máximo de tipos de recursos é 10.*/
 
-public class ConfigScreen extends JFrame{
+public class ResourceConfigScreen extends JFrame{
     private JTextField nameResourceField;
     //private JTextField idResourceField;
     private JTextField maxInstancesField;
 
     public int idCount = 0;
     public int resourceTypeCount = 0;
-    public ArrayList<Recurso> resources;
+    public ArrayList<Resource> resources;
 
-    public ConfigScreen() {
-        setTitle("Configuração Inicial");
+    public ResourceConfigScreen() {
+        setTitle("Configuração de Recursos");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        resources = new ArrayList<Recurso>();
+        resources = new ArrayList<Resource>();
 
         JLabel nameResourceLabel = new JLabel("Nome do recurso:");
         nameResourceField = new JTextField(10);
@@ -73,7 +73,7 @@ public class ConfigScreen extends JFrame{
                 }
 
                 idCount +=1 ;
-                Recurso r = new Recurso(nameResourceField.getText(), idCount, maxInstances);
+                Resource r = new Resource(nameResourceField.getText(), idCount, maxInstances);
                 resources.add(r);
                 System.out.println("[ADD]: " + resources.get(idCount-1).toString());
 
@@ -97,7 +97,6 @@ public class ConfigScreen extends JFrame{
         panel.add(nameResourceField);
         panel.add(maxInstancesLabel);
         panel.add(maxInstancesField);
-        panel.add(new JLabel()); // Espaço vazio
         panel.add(startButton);
         panel.add(addButton);
 

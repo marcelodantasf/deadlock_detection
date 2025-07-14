@@ -1,23 +1,23 @@
 /*Estes threads deverão solicitar, utilizar e liberar recursos existentes no sistema
 Podem existir até 10 processos rodando “simultaneamente”.*/
 
-public class Processo {
+public class Process extends Thread{
     private int id;
     private int intervalRequisition; //em segundos
     private int intervalUsage; //em segundos
     private volatile boolean running = true;
 
-    public Processo(int id, int intervalRequisition, int intervalUsage) {
+    public Process(int id, int intervalRequisition, int intervalUsage) {
         this.id = id;
         this.intervalRequisition = intervalRequisition;
         this.intervalUsage = intervalUsage;
     }
 
-    public int getId() {
+    public int getProcessId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setProcessId(int id) {
         this.id = id;
     }
 
@@ -49,6 +49,7 @@ public class Processo {
         this.running = false;
     }
 
+    @Override
     public void run(){
         while(running){
             //executar
