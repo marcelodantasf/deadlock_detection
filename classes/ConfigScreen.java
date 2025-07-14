@@ -17,6 +17,7 @@ public class ConfigScreen extends JFrame{
     private JTextField maxInstancesField;
 
     public int idCount = 0;
+    public int resourceTypeCount = 0;
     public ArrayList<Recurso> resources;
 
     public ConfigScreen() {
@@ -83,7 +84,7 @@ public class ConfigScreen extends JFrame{
 
                 addPlaceholder(nameResourceField, "Ex: Impressora");
                 addPlaceholder(maxInstancesField, "Ex: 5");
-                
+
             } catch (IllegalArgumentException ex) {
                 JOptionPane.showMessageDialog(this, "Insira valores válidos.");
             }

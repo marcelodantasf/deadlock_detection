@@ -3,7 +3,7 @@ Podem existir até 10 processos rodando “simultaneamente”.*/
 
 public class Processo {
     private int id;
-    private int intervalRequisition; //segundos
+    private int intervalRequisition; //em segundos
     private int intervalUsage; //em segundos
     private volatile boolean running = true;
 
