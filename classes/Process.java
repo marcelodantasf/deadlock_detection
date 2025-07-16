@@ -1,6 +1,9 @@
 /*Estes threads deverão solicitar, utilizar e liberar recursos existentes no sistema
 Podem existir até 10 processos rodando “simultaneamente”.*/
 
+import java.time.Duration;
+import java.time.LocalTime;
+
 public class Process extends Thread{
     private int id;
     private int intervalRequisition; //em segundos
@@ -14,7 +17,7 @@ public class Process extends Thread{
     }
 
     public int getProcessId() {
-        return id;
+        return this.id;
     }
 
     public void setProcessId(int id) {
@@ -22,7 +25,7 @@ public class Process extends Thread{
     }
 
     public int getIntervalRequisition() {
-        return intervalRequisition;
+        return this.intervalRequisition;
     }
 
     public void setIntervalRequisition(int intervalRequisition) {
@@ -30,7 +33,7 @@ public class Process extends Thread{
     }
 
     public int getIntervalUsage() {
-        return intervalUsage;
+        return this.intervalUsage;
     }
 
     public void setIntervalUsage(int intervalUsage) {
@@ -38,7 +41,7 @@ public class Process extends Thread{
     }
 
     public boolean isRunning() {
-        return running;
+        return this.running;
     }
 
     public void restart() {
@@ -47,6 +50,32 @@ public class Process extends Thread{
 
     public void kill(){
         this.running = false;
+    }
+
+    public void getResource(){
+        try {
+            Resource.currentInstances.acquire();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        while (true) { 
+            int time = this.intervalUsage;
+            LocalTime initial = LocalTime.now();
+            while (true) { // função de espera por X segundos
+                LocalTime now = LocalTime.now();
+                Duration duration = Duration.between(initial, now);
+                float length = duration.toMillis() / 1000f;
+
+                if(length >= (float) time){
+                    Resource.currentInstances.release();
+                    return;
+                }
+            }
+        }
+    }
+
+    public void executar(){
+
     }
 
     @Override
