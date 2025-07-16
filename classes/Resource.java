@@ -1,7 +1,7 @@
 import java.util.concurrent.Semaphore;
 
 public class Resource {
-    public Semaphore currentInstances;
+    public static Semaphore currentInstances;
 
     private String name;
     private int id;
