@@ -15,10 +15,10 @@ public class ResourceConfigScreen extends JFrame{
     private JTextField nameResourceField;
     //private JTextField idResourceField;
     private JTextField maxInstancesField;
+    private ArrayList<Resource> resources;
 
     public int idCount = 0;
     public int resourceTypeCount = 0;
-    public ArrayList<Resource> resources;
 
     public ResourceConfigScreen() {
         setTitle("Configuração de Recursos");
@@ -44,8 +44,8 @@ public class ResourceConfigScreen extends JFrame{
                     JOptionPane.showMessageDialog(this, "Nenhum recurso adicionado.");
                     return;
                 }
-                /*ExhibitionScreen exhibition = new ExhibitionScreen(resources);
-                exhibition.setVisible(true);*/
+                DisplayScreen displayScreen = new DisplayScreen(resources);
+                displayScreen.setVisible(true);
                 System.out.println();
                 for(int i = 0; i< resources.size(); i++){
                     System.out.println("recursos cadastrados: " + resources.get(i).toString());
@@ -77,8 +77,6 @@ public class ResourceConfigScreen extends JFrame{
                 resources.add(r);
                 System.out.println("[ADD]: " + resources.get(idCount-1).toString());
 
-                /*ExhibitionScreen exhibition = new ExhibitionScreen(resources);
-                exhibition.setVisible(true);*/
                 nameResourceField.setText("");
                 maxInstancesField.setText("");
 
