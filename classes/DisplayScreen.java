@@ -14,6 +14,7 @@ public class DisplayScreen extends JFrame{
     private JTable processTable;
     private JButton killProcessButton;
     private JTextField processIdField;
+    private JFrame createProcessFrame;
 
     public int processIdCount = 0;
     public static Semaphore ProcessCount;
@@ -100,3 +101,4 @@ public class DisplayScreen extends JFrame{
         return panel;
     }
 }
+    //TODO: createProcess class as pop up
