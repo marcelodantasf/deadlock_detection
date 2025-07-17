@@ -36,6 +36,20 @@ public class CreateProcessPopUp extends JDialog {
                 //mensagem
             }
         });
+
+        JButton cancelButton = new JButton("Cancelar");
+        cancelButton.addActionListener((ActionEvent e) -> {
+            dispose();
+        });
+
+        add(reqIntervalLabel);
+        add(reqIntervalField);
+        add(usageIntervalLabel);
+        add(usageIntervalField);
+        add(addButton);
+        add(cancelButton);
+
+        getRootPane().setDefaultButton(addButton);
     }
 
     private void addPlaceholder(JTextField field, String placeholder) {

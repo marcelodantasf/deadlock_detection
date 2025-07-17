@@ -44,7 +44,7 @@ public class DisplayScreen extends JFrame{
         
         // Add process button
         JButton addProcessButton = new JButton("Adicionar Processo");
-        addProcessButton.addActionListener(e -> System.out.println("[TO DO]: tela de adicionar processo"));
+        addProcessButton.addActionListener(e -> addNewProcess());
         
         // Kill process components
         JLabel killLabel = new JLabel("Matar Processo ID:");
@@ -99,6 +99,17 @@ public class DisplayScreen extends JFrame{
         panel.add(scroll, BorderLayout.CENTER);
         
         return panel;
+    }
+
+    private void addNewProcess() {
+        CreateProcessPopUp popup = new CreateProcessPopUp(this, processIdCount);
+        popup.setVisible(true);
+        
+        /*Process newProcess = popup.getCreatedProcess();
+        if (newProcess != null) {
+            processList.add(newProcess);
+            newProcess.start();
+        }*/
     }
 }
     //TODO: createProcess class as pop up
