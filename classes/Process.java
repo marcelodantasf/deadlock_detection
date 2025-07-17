@@ -1,6 +1,9 @@
 /*Estes threads deverão solicitar, utilizar e liberar recursos existentes no sistema
 Podem existir até 10 processos rodando “simultaneamente”.*/
 
+import java.time.Duration;
+import java.time.LocalTime;
+
 public class Process extends Thread{
     private int id;
     private int intervalRequisition; //em segundos
@@ -51,17 +54,39 @@ public class Process extends Thread{
 
    
 
-    public void executar(){
+    public void waiting(){
+        // função de espera por N segundos
+        while (true) { 
+            int time = this.intervalRequisition;
+            LocalTime initial = LocalTime.now();
+            while (true) { 
+                LocalTime now = LocalTime.now();
+                Duration duration = Duration.between(initial, now);
+                float length = duration.toMillis() / 1000f;
 
+                if(length >= (float) time){
+                    Resource.currentInstances.release();
+                    return;
+                }
+            }
+        }
     }
 
     @Override
     public void run(){
         while(running){
-            //executar
+
+            waiting();
+            try {
+                ResourceConfigScreen.resources
+                Resource.currentInstances.acquire();
+                System.out.println("Processo " + this.id + " requisitou recurso.");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             ProcessThread thread = new ProcessThread();
             thread.run(this.intervalUsage);
-            // TODO: temporizador para nova chamada
+
         }
         System.out.println("Processo interrompido");
     }
