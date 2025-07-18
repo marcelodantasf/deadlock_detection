@@ -3,17 +3,25 @@ Podem existir até 10 processos rodando “simultaneamente”.*/
 
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.Random;
 
 public class Process extends Thread{
+    
+    private List<Resource> resourceList;
+
     private int id;
     private int intervalRequisition; //em segundos
     private int intervalUsage; //em segundos
     private volatile boolean running = true;
 
-    public Process(int id, int intervalRequisition, int intervalUsage) {
+    private Random random = new Random();
+
+    public Process(int id, int intervalRequisition, int intervalUsage, List<Resource> resources) {
         this.id = id;
         this.intervalRequisition = intervalRequisition;
         this.intervalUsage = intervalUsage;
+        this.resourceList = resources;
     }
 
     public int getProcessId() {
@@ -52,7 +60,11 @@ public class Process extends Thread{
         this.running = false;
     }
 
-   
+    private Resource selectResource() {
+        if (resourceList == null || resourceList.isEmpty())
+            return null;
+        return resourceList.get(random.nextInt(resourceList.size()));
+    }
 
     public void waiting(){
         // função de espera por N segundos
@@ -78,14 +90,14 @@ public class Process extends Thread{
 
             waiting();
             try {
-                ResourceConfigScreen.resources
+                // ResourceConfigScreen.resources
                 Resource.currentInstances.acquire();
                 System.out.println("Processo " + this.id + " requisitou recurso.");
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            ProcessThread thread = new ProcessThread();
-            thread.run(this.intervalUsage);
+            ProcessThread thread = new ProcessThread(null, this.intervalUsage);
+            thread.start();
 
         }
         System.out.println("Processo interrompido");
