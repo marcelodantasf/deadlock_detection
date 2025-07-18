@@ -1,22 +1,28 @@
-import java.time.Duration;
-import java.time.LocalTime;
 
 public class ProcessThread extends Thread{
-     public void run(int intervalUsage){
-        
-        while (true) { 
-            int time = intervalUsage;
-            LocalTime initial = LocalTime.now();
-            while (true) { // função de espera por X segundos
-                LocalTime now = LocalTime.now();
-                Duration duration = Duration.between(initial, now);
-                float length = duration.toMillis() / 1000f;
 
-                if(length >= (float) time){
-                    Resource.currentInstances.release();
-                    return;
-                }
+    private Resource resource;
+    private int intervalUsage;
+
+    public ProcessThread(Resource resource, int intervalUsage) {
+        this.resource = resource;
+        this.intervalUsage = intervalUsage;
+    }
+
+    @Override
+     public void run(){
+        System.out.println("Recurso sendo usado por " + intervalUsage + " segundos");
+        int time = intervalUsage;
+        for (int i = 1; i <= time; i++) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
+        Resource.currentInstances.release();
+        System.out.println("Recurso liberado");
+        return;
+
     }
 }
