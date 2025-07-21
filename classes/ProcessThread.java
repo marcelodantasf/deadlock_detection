@@ -4,11 +4,12 @@ public class ProcessThread extends Thread{
     private Resource resource;
     private int intervalUsage;
 
+    // TODO: adicionar booleano atomico processo e threadprocesso
     public ProcessThread(Resource resource, int intervalUsage) {
         this.resource = resource;
         this.intervalUsage = intervalUsage;
     }
-
+    
     @Override
      public void run(){
         System.out.println("Recurso sendo usado por " + intervalUsage + " segundos");
@@ -20,7 +21,7 @@ public class ProcessThread extends Thread{
                 e.printStackTrace();
             }
         }
-        Resource.currentInstances.release();
+        resource.releaseResource();
         System.out.println("Recurso liberado");
         return;
 
