@@ -26,6 +26,10 @@ public class Resource {
         currentInstances.release();
     }
 
+    public int getAvailableInstances(){
+        return this.currentInstances.availablePermits();
+    }
+
     public String getName() {
         return this.name;
     }
