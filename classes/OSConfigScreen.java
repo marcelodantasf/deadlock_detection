@@ -38,7 +38,7 @@ public class OSConfigScreen extends JFrame {
             }
 
             OS os = new OS(verificationInterval);
-            ResourceConfigScreen resourceConfig = new ResourceConfigScreen();
+            ResourceConfigScreen resourceConfig = new ResourceConfigScreen(os);
             resourceConfig.setVisible(true);
             dispose();
         });

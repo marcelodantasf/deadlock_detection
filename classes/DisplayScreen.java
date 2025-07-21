@@ -19,7 +19,7 @@ public class DisplayScreen extends JFrame{
     public int processIdCount = 0;
     public static Semaphore ProcessCount;
 
-    public DisplayScreen(ArrayList<Resource> resources) {
+    public DisplayScreen(ArrayList<Resource> resources, OS os) {
         setTitle("Simulação");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,6 +37,8 @@ public class DisplayScreen extends JFrame{
         add(controlPanel, BorderLayout.NORTH);
         add(statusPanel, BorderLayout.CENTER);
         add(logPanel, BorderLayout.SOUTH);
+
+        os.setDisplayScreen(this);
     }
 
     private JPanel createControlPanel() {

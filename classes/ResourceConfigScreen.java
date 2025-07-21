@@ -23,7 +23,7 @@ public class ResourceConfigScreen extends JFrame{
     public int idCount = 0;
     public int resourceTypeCount = 0;
 
-    public ResourceConfigScreen() {
+    public ResourceConfigScreen(OS os) {
         setTitle("Configuração de Recursos");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -47,7 +47,7 @@ public class ResourceConfigScreen extends JFrame{
                     JOptionPane.showMessageDialog(this, "Nenhum recurso adicionado.");
                     return;
                 }
-                DisplayScreen displayScreen = new DisplayScreen(resources);
+                DisplayScreen displayScreen = new DisplayScreen(resources, os);
                 displayScreen.setVisible(true);
                 System.out.println();
                 for(int i = 0; i< resources.size(); i++){

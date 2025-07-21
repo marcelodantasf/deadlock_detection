@@ -2,7 +2,8 @@ import java.time.Duration;
 import java.time.LocalTime;
 
 public class OS extends Thread{
-    private int verificationInterval;
+    private final int verificationInterval;
+    private DisplayScreen displayScreen;
 
     public int getVerificationInterval() {
         return verificationInterval;
@@ -10,6 +11,14 @@ public class OS extends Thread{
 
     public OS(int verificationInterval) {
         this.verificationInterval = verificationInterval;
+    }
+
+    public DisplayScreen getDisplayScreen() {
+        return displayScreen;
+    }
+
+    public void setDisplayScreen(DisplayScreen displayScreen) {
+        this.displayScreen = displayScreen;
     }
 
     public void waiting(){
