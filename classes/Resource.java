@@ -1,24 +1,30 @@
 import java.util.concurrent.Semaphore;
 
 public class Resource {
-    public static Semaphore currentInstances;
+    public Semaphore currentInstances;
 
-    private String name;
-    private int id;
+    private final String name;
+    private final int id;
     private int maxInstances;
-    //private int currentInstances;
     
     public Resource(String name, int id, int maxInstances) {
         this.name = name;
         this.id = id;
         this.maxInstances = maxInstances;
-        //this.currentInstances = maxInstances;
-        this.currentInstances = new Semaphore(maxInstances);
+        this.currentInstances = new Semaphore(maxInstances, true);
     }
-    
-    /*public int getCurrentInstances() {
-        return currentInstances;
-    }*/
+
+    public void acquireResource() {
+        try {
+            currentInstances.acquire();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } 
+    }
+
+    public void releaseResource(){
+        currentInstances.release();
+    }
 
     public String getName() {
         return this.name;
@@ -30,18 +36,6 @@ public class Resource {
 
     public int getMaxInstances() {
         return this.maxInstances;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-    
-    public void setMaxInstances(int maxInstances) {
-        this.maxInstances = maxInstances;
     }
 
     @Override
