@@ -77,28 +77,40 @@ public class Process extends Thread{
                 float length = duration.toMillis() / 1000f;
 
                 if(length >= (float) time){
-                    Resource.currentInstances.release();
                     return;
                 }
             }
         }
     }
 
+    public void requestResource(){
+        Resource resourceSelected = selectResource();
+        System.out.println("Processo " + this.id + " requisitou recurso " + resourceSelected.getName() + " .");
+        
+        resourceSelected.acquireResource();
+        ProcessThread thread = new ProcessThread(resourceSelected, this.intervalUsage);
+        thread.start();
+    }
+
+    public void mutexAcquire(){
+        try{
+            ResourceConfigScreen.Mutex.acquire();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void mutexRelease(){
+        ResourceConfigScreen.Mutex.release();
+    }
+
     @Override
     public void run(){
         while(running){
-
             waiting();
-            try {
-                // ResourceConfigScreen.resources
-                Resource.currentInstances.acquire();
-                System.out.println("Processo " + this.id + " requisitou recurso.");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            ProcessThread thread = new ProcessThread(null, this.intervalUsage);
-            thread.start();
-
+            mutexAcquire();
+            requestResource();
+            mutexRelease();
         }
         System.out.println("Processo interrompido");
     }
