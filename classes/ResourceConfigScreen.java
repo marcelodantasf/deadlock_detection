@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 import javax.swing.*;
 
 /*Antes de iniciar a simulação, o usuário deverá informar todos os tipos de recursos existentes
@@ -15,6 +16,8 @@ public class ResourceConfigScreen extends JFrame{
     private JTextField nameResourceField;
     //private JTextField idResourceField;
     private JTextField maxInstancesField;
+
+    public static Semaphore Mutex = new Semaphore(1);
 
     public int idCount = 0;
     public int resourceTypeCount = 0;
