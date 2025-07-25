@@ -42,6 +42,7 @@ public class DisplayScreen extends JFrame{
         add(logPanel, BorderLayout.SOUTH);
 
         os.setDisplayScreen(this);
+        new Thread(this::updateDisplay).start();
     }
 
     private JPanel createControlPanel() {
@@ -69,13 +70,13 @@ public class DisplayScreen extends JFrame{
         JPanel panel = new JPanel(new GridLayout(1, 2));
         
         // Process table
-        String[] processColumns = {"ID", "Status", "Recursos Usados", "Recursos Esperados"};
+        String[] processColumns = {"ID do Processo", "Status", "Recursos Usados", "Recursos Esperados"};
         DefaultTableModel processModel = new DefaultTableModel(processColumns, 0);
         processTable = new JTable(processModel);
         JScrollPane processScroll = new JScrollPane(processTable);
         
         // Resource table
-        String[] resourceColumns = {"ID", "Nome", "Total", "Disponíveis", "Alocados"};
+        String[] resourceColumns = {"ID do Recurso", "Nome", "Total", "Disponíveis", "Alocados"};
         DefaultTableModel resourceModel = new DefaultTableModel(resourceColumns, 0);
         resourceTable = new JTable(resourceModel);
         JScrollPane resourceScroll = new JScrollPane(resourceTable);
@@ -114,7 +115,7 @@ public class DisplayScreen extends JFrame{
      private void updateDisplay() {
         while (true) {
             try {
-                Thread.sleep(1000); // Update once per second
+                Thread.sleep(500); // Update twice per second
                 
                 // Update process table
                 DefaultTableModel processModel = (DefaultTableModel)processTable.getModel();
