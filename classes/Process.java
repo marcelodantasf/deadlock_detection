@@ -103,6 +103,19 @@ public class Process extends Thread{
         allocated.put(index, allocated.getOrDefault(index, 0) + 1);
     }
 
+    public void releaseResource(int resourceIndex) {
+        if (allocated.containsKey(resourceIndex)) {
+            resourceList.get(resourceIndex).releaseResource();
+            int current = allocated.get(resourceIndex);
+            if (current > 1) {
+                allocated.put(resourceIndex, current - 1);
+            } else {
+                allocated.remove(resourceIndex);
+            }
+            System.out.println("Processo " + this.id + " liberou recurso " + resourceList.get(resourceIndex).getName());
+        }
+    }
+
     public void mutexAcquire(){
         try{
             ResourceConfigScreen.Mutex.acquire();
@@ -122,7 +135,8 @@ public class Process extends Thread{
 
         int t = 0;
         int requests = 0;
-        
+        int realeseds = 0;
+
         while(running){
 
             waitASec();
@@ -137,6 +151,8 @@ public class Process extends Thread{
             }
 
             if(t - (requests * deltU) == intervalUsage){
+                releaseResource(realeseds);
+                realeseds++;
                 // TODO: implementar lógica de liberar o recurso
             }
             
