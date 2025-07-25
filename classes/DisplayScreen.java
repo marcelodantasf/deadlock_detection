@@ -1,5 +1,7 @@
 import java.awt.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.Semaphore;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -7,7 +9,7 @@ import javax.swing.text.DefaultCaret;
 
 public class DisplayScreen extends JFrame{
     private ArrayList<Resource> resourceList;
-    private ArrayList<Process> processList;
+    private ArrayList<Process> processList = new ArrayList<Process>();
     private JLayeredPane layeredPane;
     private JTextArea logArea;
     private JTable resourceTable;
@@ -19,7 +21,7 @@ public class DisplayScreen extends JFrame{
     public int processIdCount = 0;
     public static Semaphore ProcessCount;
 
-    public DisplayScreen(ArrayList<Resource> resources, OS os) {
+    public DisplayScreen(ArrayList<Resource> resourceList, OS os) {
         setTitle("Simulação");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -27,6 +29,7 @@ public class DisplayScreen extends JFrame{
         setLayout(new BorderLayout());
 
         ProcessCount = new Semaphore(0, true);
+        this.resourceList = resourceList;
          
         // Create main panels
         JPanel controlPanel = createControlPanel();
@@ -104,14 +107,60 @@ public class DisplayScreen extends JFrame{
     }
 
     private void openNewProcessPopUp() {
-        CreateProcessPopUp popup = new CreateProcessPopUp(this, processIdCount);
+        CreateProcessPopUp popup = new CreateProcessPopUp(this, processIdCount, this.resourceList, this.processList);
         popup.setVisible(true);
-        
-        /*Process newProcess = popup.getCreatedProcess();
-        if (newProcess != null) {
-            processList.add(newProcess);
-            newProcess.start();
-        }*/
+    }
+
+     private void updateDisplay() {
+        while (true) {
+            try {
+                Thread.sleep(1000); // Update once per second
+                
+                // Update process table
+                DefaultTableModel processModel = (DefaultTableModel)processTable.getModel();
+                processModel.setRowCount(0);
+                
+                for (Process p : processList) {
+                    String status = p.isRunning() ? "Rodando" : "Bloqueado";
+                    // TODO: Add actual resource usage and waiting info
+                    processModel.addRow(new Object[]{
+                        p.getProcessId(),
+                        status,
+                        "Recursos usados", // Replace with actual data
+                        "Recursos esperados" // Replace with actual data
+                    });
+                }
+                
+                // Update resource table
+                DefaultTableModel resourceModel = (DefaultTableModel)resourceTable.getModel();
+                resourceModel.setRowCount(0);
+                
+                for (Resource r : resourceList) {
+                    int available = r.currentInstances.availablePermits();
+                    int allocated = r.getMaxInstances() - available;
+                    
+                    resourceModel.addRow(new Object[]{
+                        r.getId(),
+                        r.getName(),
+                        r.getMaxInstances(),
+                        available,
+                        allocated
+                    });
+                }
+                
+                // Check for deadlocks
+                //checkDeadlocks();
+                
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void log(String message) {
+        String timestamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
+        SwingUtilities.invokeLater(() -> {
+            logArea.append("[" + timestamp + "] " + message + "\n");
+        });
     }
 }
-    //TODO: createProcess class as pop up

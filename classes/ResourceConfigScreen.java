@@ -16,7 +16,7 @@ public class ResourceConfigScreen extends JFrame{
     private JTextField nameResourceField;
     //private JTextField idResourceField;
     private JTextField maxInstancesField;
-    private ArrayList<Resource> resources;
+    private ArrayList<Resource> resources = new ArrayList<Resource>();
 
     public static Semaphore Mutex = new Semaphore(1);
 
