@@ -1,10 +1,12 @@
 /*Estes threads deverão solicitar, utilizar e liberar recursos existentes no sistema
 Podem existir até 10 processos rodando “simultaneamente”.*/
 
-import java.time.Duration;
-import java.time.LocalTime;
+import java.util.Map;
 import java.util.List;
 import java.util.Random;
+import java.util.HashMap;
+import java.time.Duration;
+import java.time.LocalTime;
 
 public class Process extends Thread{
     
@@ -14,6 +16,9 @@ public class Process extends Thread{
     private int intervalRequisition; //em segundos
     private int intervalUsage; //em segundos
     private volatile boolean running = true;
+
+    private Map<Integer, Integer> allocated = new HashMap<>();
+    private Map<Integer, Integer> requested = new HashMap<>();
 
     private Random random = new Random();
 
@@ -66,30 +71,36 @@ public class Process extends Thread{
         return resourceList.get(random.nextInt(resourceList.size()));
     }
 
-    public void waiting(){
+    public void waitASec(){
         // função de espera por N segundos
-        while (true) { 
-            int time = this.intervalRequisition;
-            LocalTime initial = LocalTime.now();
-            while (true) { 
-                LocalTime now = LocalTime.now();
-                Duration duration = Duration.between(initial, now);
-                float length = duration.toMillis() / 1000f;
-
-                if(length >= (float) time){
-                    return;
-                }
+        try {
+                sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        }
+    }
+
+    public int getAllocated(int resourceIndex) {
+        return allocated.getOrDefault(resourceIndex, 0);
+    }
+
+    public int getRequested(int resourceIndex) {
+        return requested.getOrDefault(resourceIndex, 0);
     }
 
     public void requestResource(){
+        /* TODO: modificar para a nova lógica de requisição 
+           (como vai gravar qual recurso está sendo usado para depois saber qual liberar) */
         Resource resourceSelected = selectResource();
+        int index = resourceList.indexOf(resourceSelected);
+
         System.out.println("Processo " + this.id + " requisitou recurso " + resourceSelected.getName() + " .");
         
+        requested.put(index, requested.getOrDefault(index, 0) + 1);
+        
         resourceSelected.acquireResource();
-        ProcessThread thread = new ProcessThread(resourceSelected, this.intervalUsage);
-        thread.start();
+
+        allocated.put(index, allocated.getOrDefault(index, 0) + 1);
     }
 
     public void mutexAcquire(){
@@ -106,11 +117,29 @@ public class Process extends Thread{
 
     @Override
     public void run(){
+        int deltR = this.intervalRequisition;
+        int deltU = this.intervalUsage;
+
+        int t = 0;
+        int requests = 0;
+        
         while(running){
-            waiting();
-            mutexAcquire();
-            requestResource();
-            mutexRelease();
+
+            waitASec();
+            t++;
+
+            if (t % deltR == 0){
+                requests++;
+                // TODO: mudar método de aquisição
+                mutexAcquire();
+                requestResource();
+                mutexRelease();
+            }
+
+            if(t - (requests * deltU) == intervalUsage){
+                // TODO: implementar lógica de liberar o recurso
+            }
+            
         }
         System.out.println("Processo interrompido");
     }
