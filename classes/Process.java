@@ -14,6 +14,7 @@ public class Process extends Thread{
     private int intervalRequisition; //em segundos
     private int intervalUsage; //em segundos
     private volatile boolean running = true;
+    private DisplayScreen displayScreen;
 
     private Random random = new Random();
 
@@ -22,6 +23,14 @@ public class Process extends Thread{
         this.intervalRequisition = intervalRequisition;
         this.intervalUsage = intervalUsage;
         this.resourceList = resources;
+    }
+
+    public DisplayScreen getDisplayScreen() {
+        return displayScreen;
+    }
+
+    public void setDisplayScreen(DisplayScreen displayScreen) {
+        this.displayScreen = displayScreen;
     }
 
     public int getProcessId() {
@@ -85,7 +94,9 @@ public class Process extends Thread{
 
     public void requestResource(){
         Resource resourceSelected = selectResource();
-        System.out.println("Processo " + this.id + " requisitou recurso " + resourceSelected.getName() + " .");
+        String msg = "Processo " + this.id + " requisitou recurso " + resourceSelected.getName() + " .";
+        System.out.println(msg);
+        displayScreen.log(msg);
         
         resourceSelected.acquireResource();
         ProcessThread thread = new ProcessThread(resourceSelected, this.intervalUsage);
@@ -112,6 +123,8 @@ public class Process extends Thread{
             requestResource();
             mutexRelease();
         }
-        System.out.println("Processo interrompido");
+        String killMsg = "Processo " + this.id + " interrompido";
+        System.out.println(killMsg);
+        displayScreen.log(killMsg);
     }
 }

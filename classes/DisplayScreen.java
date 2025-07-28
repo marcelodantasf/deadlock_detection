@@ -10,13 +10,11 @@ import javax.swing.text.DefaultCaret;
 public class DisplayScreen extends JFrame{
     private ArrayList<Resource> resourceList;
     private ArrayList<Process> processList = new ArrayList<Process>();
-    private JLayeredPane layeredPane;
     private JTextArea logArea;
     private JTable resourceTable;
     private JTable processTable;
     private JButton killProcessButton;
     private JTextField processIdField;
-    private JFrame createProcessFrame;
 
     public int processIdCount = 0;
     public static Semaphore ProcessCount;

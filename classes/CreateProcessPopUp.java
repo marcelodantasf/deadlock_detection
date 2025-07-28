@@ -88,6 +88,7 @@ public class CreateProcessPopUp extends JDialog {
             displayScreen.processIdCount++;
             
             this.createdProcess = new Process(displayScreen.processIdCount, reqInterval, usageInterval, resources);
+            createdProcess.setDisplayScreen(displayScreen);
             displayScreen.log("Processo " + displayScreen.processIdCount + " criado (Req: " + reqInterval + "s, Uso: " + usageInterval + "s)");
             displayScreen.log(createdProcess.toString());
 
