@@ -18,7 +18,19 @@ public class ResourceConfigScreen extends JFrame{
     private JTextField maxInstancesField;
     private ArrayList<Resource> resources;
 
-    public static Semaphore Mutex = new Semaphore(1);
+    public static Semaphore Mutex = new Semaphore(1, true);
+
+    public static void mutexAcquire(){
+        try {
+            Mutex.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void mutexRelease(){
+        Mutex.release();
+    }
 
     public int idCount = 0;
     public int resourceTypeCount = 0;
