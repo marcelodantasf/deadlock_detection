@@ -1,7 +1,10 @@
+import java.util.List;
 
 public class OS extends Thread{
     private final int verificationInterval;
     private DisplayScreen displayScreen;
+
+    private List<Process> processList;
 
     private int[] existentResources;
     private int[] availableResources;
@@ -12,10 +15,6 @@ public class OS extends Thread{
         this.verificationInterval = verificationInterval;
     }
 
-    public int getVerificationInterval() {
-        return verificationInterval;
-    }
-
     public DisplayScreen getDisplayScreen() {
         return displayScreen;
     }
@@ -24,6 +23,18 @@ public class OS extends Thread{
         this.displayScreen = displayScreen;
     }
 
+    public int getVerificationInterval() {
+        return verificationInterval;
+    }
+
+    public void setProcesses(List<Process> processList) {
+        this.processList = processList;
+    }
+
+    public void setExistentResources(int[] existentResources) {
+        this.existentResources = existentResources;
+    }
+    
     public void waiting(){
         try {
             sleep(1000 * this.verificationInterval);
@@ -31,18 +42,39 @@ public class OS extends Thread{
             e.printStackTrace();
         }
     }
-    
-    public void verify() {
-        int n = requisitions.length;  // número de processos
-        int m = requisitions[0].length; // número de recursos
 
+    public void updateMatricesFromProcesses() {
+        if (processList == null || processList.isEmpty()) return;
+
+        int n = processList.size();
+        int m = existentResources.length;
+
+        currentAlocation = new int[n][m];
+        requisitions = new int[n][m];
+        availableResources = new int[m];
+
+        // Atualiza C e R com base nos processos
+        for (int i = 0; i < n; i++) {
+            Process p = processList.get(i);
+            for (int j = 0; j < m; j++) {
+                currentAlocation[i][j] = p.getAllocated(j);
+                requisitions[i][j] = p.getRequested(j);
+            }
+        }
+
+        // Calcula recursos disponíveis: A = E - soma coluna(C)
         for (int j = 0; j < m; j++) {
             int sum = 0;
             for (int i = 0; i < n; i++) {
                 sum += currentAlocation[i][j];
             }
-            this.availableResources[j] = this.existentResources[j] - sum;
+            availableResources[j] = existentResources[j] - sum;
         }
+    }
+    
+    private void verify() {
+        int n = currentAlocation.length;
+        int m = currentAlocation[0].length;
 
         boolean[] finished = new boolean[n];
         int[] work = availableResources.clone();
@@ -64,29 +96,27 @@ public class OS extends Thread{
                     }
 
                     if (canExecute) {
-                        // Simula a liberação de recursos
                         for (int j = 0; j < m; j++) {
                             work[j] += currentAlocation[i][j];
                         }
                         finished[i] = true;
                         progress = true;
+                        System.out.println("[OS] Processo P" + i + " finalizado (simulado).");
                     }
                 }
             }
-
         } while (progress);
 
-        // Verifica os processos que não conseguiram terminar
         boolean deadlockDetected = false;
         for (int i = 0; i < n; i++) {
             if (!finished[i]) {
                 deadlockDetected = true;
-                System.out.println("Deadlock detectado no processo P" + i);
+                System.out.println("⚠ Deadlock detectado com processo P" + i);
             }
         }
 
         if (!deadlockDetected) {
-            System.out.println("Nenhum deadlock detectado.");
+            System.out.println("✅ Nenhum deadlock detectado.");
         }
     }
 
@@ -94,8 +124,8 @@ public class OS extends Thread{
     public void run() {
         while (true) { 
             waiting();
+            updateMatricesFromProcesses();
             verify();
-
         }
     }
 }
