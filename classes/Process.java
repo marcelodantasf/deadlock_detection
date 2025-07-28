@@ -17,6 +17,7 @@ public class Process extends Thread{
     private int intervalRequisition; //em segundos
     private int intervalUsage; //em segundos
     private volatile boolean running = true;
+    private DisplayScreen displayScreen;
 
     private Map<Integer, Integer> allocated = new HashMap<>();
     private Map<Integer, Integer> requested = new HashMap<>();
@@ -28,6 +29,14 @@ public class Process extends Thread{
         this.intervalRequisition = intervalRequisition;
         this.intervalUsage = intervalUsage;
         this.resourceList = resources;
+    }
+
+    public DisplayScreen getDisplayScreen() {
+        return displayScreen;
+    }
+
+    public void setDisplayScreen(DisplayScreen displayScreen) {
+        this.displayScreen = displayScreen;
     }
 
     public int getProcessId() {
@@ -91,6 +100,7 @@ public class Process extends Thread{
 
     public void requestResource(){
         Resource resourceSelected = selectResource();
+
         if (resourceSelected == null) return;
 
         int index = resourceList.indexOf(resourceSelected);
@@ -157,6 +167,8 @@ public class Process extends Thread{
             }
             
         }
-        System.out.println("Processo interrompido");
+        String killMsg = "Processo " + this.id + " interrompido";
+        System.out.println(killMsg);
+        displayScreen.log(killMsg);
     }
 }
