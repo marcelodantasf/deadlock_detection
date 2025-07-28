@@ -65,7 +65,16 @@ public class Process extends Thread {
     }
 
     public void kill(){
-        this.running = false;
+        if(running) {
+            for (int i = resourcesBeingUsed.size() - 1; i>=0 ; i--){
+                Resource r = resourcesBeingUsed.get(i);
+                r.releaseResource();
+                resourcesBeingUsed.remove(r);
+            }
+            this.running = false;
+            this.interrupt();
+        }
+        return;
     }
 
     private Resource selectResource() {
@@ -79,7 +88,7 @@ public class Process extends Thread {
         try {
             sleep(1000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -137,6 +146,7 @@ public class Process extends Thread {
 
         while (running) {
             waitASec();
+            if(!running) break;
             t++;
 
             if (t % deltR == 0) {

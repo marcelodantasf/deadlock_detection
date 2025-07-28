@@ -54,7 +54,11 @@ public class DisplayScreen extends JFrame{
         JLabel killLabel = new JLabel("Matar Processo ID:");
         processIdField = new JTextField(5);
         killProcessButton = new JButton("Matar");
-        killProcessButton.addActionListener(e -> System.out.println("[TO DO]: matar processo"));
+        killProcessButton.addActionListener(e -> {
+            int processToKill = Integer.parseInt(processIdField.getText());
+            processList.get(processToKill - 1).kill();
+            log("Processo " + processToKill + " interrompido");
+        });
         
         panel.add(addProcessButton);
         panel.add(killLabel);
@@ -121,6 +125,7 @@ public class DisplayScreen extends JFrame{
                 
                 for (Process p : processList) {
                     String status = p.getState().toString().equals("TIMED_WAITING") ? "Rodando" : "Bloqueado";
+                    if (!p.isRunning()) status = "Interrompido";
                     processModel.addRow(new Object[]{
                         p.getProcessId(),
                         status,
