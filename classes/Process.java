@@ -1,26 +1,19 @@
-/*Estes threads deverão solicitar, utilizar e liberar recursos existentes no sistema
-Podem existir até 10 processos rodando “simultaneamente”.*/
-
-import java.util.Map;
 import java.util.Queue;
 import java.util.List;
 import java.util.Random;
-import java.util.HashMap;
 import java.util.LinkedList;
 
-public class Process extends Thread{
-    
+public class Process extends Thread {
+
     private List<Resource> resourceList;
-    private Queue<Resource> resourceBeingUsed = new LinkedList<>();
+    private Queue<Resource> resourcesRequested = new LinkedList<>();
+    private Queue<Resource> resourcesBeingUsed = new LinkedList<>();
 
     private int id;
-    private int intervalRequisition; //em segundos
-    private int intervalUsage; //em segundos
+    private int intervalRequisition; // em segundos
+    private int intervalUsage;       // em segundos
     private volatile boolean running = true;
     private DisplayScreen displayScreen;
-
-    private Map<Integer, Integer> allocated = new HashMap<>();
-    private Map<Integer, Integer> requested = new HashMap<>();
 
     private Random random = new Random();
 
@@ -37,30 +30,6 @@ public class Process extends Thread{
 
     public void setDisplayScreen(DisplayScreen displayScreen) {
         this.displayScreen = displayScreen;
-    }
-
-    public int getProcessId() {
-        return this.id;
-    }
-
-    public void setProcessId(int id) {
-        this.id = id;
-    }
-
-    public int getIntervalRequisition() {
-        return this.intervalRequisition;
-    }
-
-    public void setIntervalRequisition(int intervalRequisition) {
-        this.intervalRequisition = intervalRequisition;
-    }
-
-    public int getIntervalUsage() {
-        return this.intervalUsage;
-    }
-
-    public void setIntervalUsage(int intervalUsage) {
-        this.intervalUsage = intervalUsage;
     }
 
     public boolean isRunning() {
@@ -82,93 +51,78 @@ public class Process extends Thread{
     }
 
     public void waitASec(){
-        // função de espera por N segundos
+        // função de espera por 1 segundo
         try {
-                sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-    }
-
-    public int getAllocated(int resourceIndex) {
-        return allocated.getOrDefault(resourceIndex, 0);
+            sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public int getRequested(int resourceIndex) {
-        return requested.getOrDefault(resourceIndex, 0);
+        int count = 0;
+        for (Resource r : resourcesRequested) {
+            if (resourceList.indexOf(r) == resourceIndex) count++;
+        }
+        return count;
     }
 
-    public void requestResource(){
-        Resource resourceSelected = selectResource();
+    public int getAllocated(int resourceIndex) {
+        int count = 0;
+        for (Resource r : resourcesBeingUsed) {
+            if (resourceList.indexOf(r) == resourceIndex) count++;
+        }
+        return count;
+    }
 
+    public void requestResource() {
+        Resource resourceSelected = selectResource();
         if (resourceSelected == null) return;
 
-        int index = resourceList.indexOf(resourceSelected);
-
-        System.out.println("Processo " + this.id + " requisitou recurso " + resourceSelected.getName() + ".");
-
-        requested.put(index, requested.getOrDefault(index, 0) + 1);
+        resourcesRequested.add(resourceSelected);
+        System.out.println("Processo " + this.id + " requisitou recurso " + resourceSelected.getName());
 
         ResourceConfigScreen.mutexAcquire();
         resourceSelected.acquireResource();
         ResourceConfigScreen.mutexRelease();
 
-        allocated.put(index, allocated.getOrDefault(index, 0) + 1);
-        resourceBeingUsed.add(resourceSelected);
-    }
-
-    public void releaseResource(int resourceIndex) {
-        if (allocated.containsKey(resourceIndex)) {
-            ResourceConfigScreen.mutexAcquire();
-            resourceList.get(resourceIndex).releaseResource();
-            ResourceConfigScreen.mutexRelease();
-            int current = allocated.get(resourceIndex);
-            if (current > 1) {
-                allocated.put(resourceIndex, current - 1);
-            } else {
-                allocated.remove(resourceIndex);
-            }
-            System.out.println("Processo " + this.id + " liberou recurso " + resourceList.get(resourceIndex).getName());
-        }
+        resourcesBeingUsed.add(resourceSelected);
     }
 
     public void releaseNextResource() {
-        if (!resourceBeingUsed.isEmpty()) {
-            Resource resource = resourceBeingUsed.poll();
-            int index = resourceList.indexOf(resource);
-            releaseResource(index);
-            return;
+        if (!resourcesBeingUsed.isEmpty()) {
+            Resource resource = resourcesBeingUsed.poll();
+            ResourceConfigScreen.mutexAcquire();
+            resource.releaseResource();
+            ResourceConfigScreen.mutexRelease();
+            System.out.println("Processo " + this.id + " liberou recurso " + resource.getName());
         }
-        return;
     }
 
     @Override
-    public void run(){
+    public void run() {
         int deltR = this.intervalRequisition;
         int deltU = this.intervalUsage;
 
         int t = 0;
-        int requests = 0;
 
-        while(running){
-
+        while (running) {
             waitASec();
             t++;
 
-            if (t % deltR == 0){
-                requests++;
-                // TODO: mudar método de aquisição
+            if (t % deltR == 0) {
                 requestResource();
             }
 
-            if(t - (requests * deltU) == intervalUsage){
+            if (t % deltU == 0) {
                 releaseNextResource();
-                // TODO: implementar lógica de liberar o recurso
             }
-            
         }
+
         String killMsg = "Processo " + this.id + " interrompido";
         System.out.println(killMsg);
-        displayScreen.log(killMsg);
+        if (displayScreen != null) {
+            displayScreen.log(killMsg);
+        }
     }
 }
