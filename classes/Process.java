@@ -2,15 +2,16 @@
 Podem existir até 10 processos rodando “simultaneamente”.*/
 
 import java.util.Map;
+import java.util.Queue;
 import java.util.List;
 import java.util.Random;
 import java.util.HashMap;
-import java.time.Duration;
-import java.time.LocalTime;
+import java.util.LinkedList;
 
 public class Process extends Thread{
     
     private List<Resource> resourceList;
+    private Queue<Resource> resourceBeingUsed = new LinkedList<>();
 
     private int id;
     private int intervalRequisition; //em segundos
@@ -89,23 +90,28 @@ public class Process extends Thread{
     }
 
     public void requestResource(){
-        /* TODO: modificar para a nova lógica de requisição 
-           (como vai gravar qual recurso está sendo usado para depois saber qual liberar) */
         Resource resourceSelected = selectResource();
+        if (resourceSelected == null) return;
+
         int index = resourceList.indexOf(resourceSelected);
 
-        System.out.println("Processo " + this.id + " requisitou recurso " + resourceSelected.getName() + " .");
-        
+        System.out.println("Processo " + this.id + " requisitou recurso " + resourceSelected.getName() + ".");
+
         requested.put(index, requested.getOrDefault(index, 0) + 1);
-        
+
+        ResourceConfigScreen.mutexAcquire();
         resourceSelected.acquireResource();
+        ResourceConfigScreen.mutexRelease();
 
         allocated.put(index, allocated.getOrDefault(index, 0) + 1);
+        resourceBeingUsed.add(resourceSelected);
     }
 
     public void releaseResource(int resourceIndex) {
         if (allocated.containsKey(resourceIndex)) {
+            ResourceConfigScreen.mutexAcquire();
             resourceList.get(resourceIndex).releaseResource();
+            ResourceConfigScreen.mutexRelease();
             int current = allocated.get(resourceIndex);
             if (current > 1) {
                 allocated.put(resourceIndex, current - 1);
@@ -116,16 +122,14 @@ public class Process extends Thread{
         }
     }
 
-    public void mutexAcquire(){
-        try{
-            ResourceConfigScreen.Mutex.acquire();
-        } catch (Exception e){
-            e.printStackTrace();
+    public void releaseNextResource() {
+        if (!resourceBeingUsed.isEmpty()) {
+            Resource resource = resourceBeingUsed.poll();
+            int index = resourceList.indexOf(resource);
+            releaseResource(index);
+            return;
         }
-    }
-
-    public void mutexRelease(){
-        ResourceConfigScreen.Mutex.release();
+        return;
     }
 
     @Override
@@ -135,7 +139,6 @@ public class Process extends Thread{
 
         int t = 0;
         int requests = 0;
-        int realeseds = 0;
 
         while(running){
 
@@ -145,14 +148,11 @@ public class Process extends Thread{
             if (t % deltR == 0){
                 requests++;
                 // TODO: mudar método de aquisição
-                mutexAcquire();
                 requestResource();
-                mutexRelease();
             }
 
             if(t - (requests * deltU) == intervalUsage){
-                releaseResource(realeseds);
-                realeseds++;
+                releaseNextResource();
                 // TODO: implementar lógica de liberar o recurso
             }
             
