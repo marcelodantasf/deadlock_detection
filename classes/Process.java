@@ -32,6 +32,14 @@ public class Process extends Thread {
         this.displayScreen = displayScreen;
     }
 
+    public int getProcessId() {
+        return this.id;
+    }
+
+    public void setProcessId(int id) {
+        this.id = id;
+    }
+
     public boolean isRunning() {
         return this.running;
     }
