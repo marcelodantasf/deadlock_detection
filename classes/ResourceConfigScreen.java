@@ -36,6 +36,8 @@ public class ResourceConfigScreen extends JFrame{
     public int resourceTypeCount = 0;
 
     public ResourceConfigScreen(OS os) {
+        // TODO: Setar recursos no os, passar para a displayscreen e startar la
+        //lembrar de atualizar a lista de processos do SO toda vez q um novo processo for iniciado.
         setTitle("Configuração de Recursos");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

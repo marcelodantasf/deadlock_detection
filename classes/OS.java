@@ -101,7 +101,7 @@ public class OS extends Thread{
                         }
                         finished[i] = true;
                         progress = true;
-                        System.out.println("[OS] Processo P" + i + " finalizado (simulado).");
+                        System.out.println("[SO] OK: Processo P" + i + " concluiu a execução.");
                     }
                 }
             }
@@ -111,12 +111,15 @@ public class OS extends Thread{
         for (int i = 0; i < n; i++) {
             if (!finished[i]) {
                 deadlockDetected = true;
-                System.out.println("⚠ Deadlock detectado com processo P" + i);
+                String errorMsg = ("\n######################################################");
+                errorMsg += ("\n[SO] ERRO: Deadlock detectado com processo P" + i);
+                errorMsg += ("\n######################################################\n");
+                displayScreen.log(errorMsg);
             }
         }
 
         if (!deadlockDetected) {
-            System.out.println("✅ Nenhum deadlock detectado.");
+            System.out.println("[SO] OK: Nenhum deadlock detectado.");
         }
     }
 

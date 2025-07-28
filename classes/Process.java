@@ -6,8 +6,8 @@ import java.util.LinkedList;
 public class Process extends Thread {
 
     private List<Resource> resourceList;
-    private Queue<Resource> resourcesRequested = new LinkedList<>();
-    private Queue<Resource> resourcesBeingUsed = new LinkedList<>();
+    private List<Resource> resourcesRequested = new LinkedList<>();
+    private List<Resource> resourcesBeingUsed = new LinkedList<>();
 
     private int id;
     private int intervalRequisition; // em segundos
@@ -34,6 +34,22 @@ public class Process extends Thread {
 
     public int getProcessId() {
         return this.id;
+    }
+
+    public String getResourceBeingUsedList() {
+        String str = "";
+        for(int i = 0; i<resourcesBeingUsed.size(); i++) {
+            str +=  resourcesBeingUsed.get(i).getName() + ";\n";
+        }
+        return str;
+    }
+
+    public String getResourceRequested() {
+        String str = "";
+        for(int i = 0; i<resourcesRequested.size(); i++) {
+            str += resourcesRequested.get(i).getName() + ";\n";
+        }
+        return str;
     }
 
     public void setProcessId(int id) {
@@ -88,22 +104,27 @@ public class Process extends Thread {
         if (resourceSelected == null) return;
 
         resourcesRequested.add(resourceSelected);
-        System.out.println("Processo " + this.id + " requisitou recurso " + resourceSelected.getName());
+        String msg = ("Processo " + this.id + " requisitou recurso " + resourceSelected.getName());
+        displayScreen.log(msg);
+        System.out.println(msg);
 
         ResourceConfigScreen.mutexAcquire();
         resourceSelected.acquireResource();
         ResourceConfigScreen.mutexRelease();
 
         resourcesBeingUsed.add(resourceSelected);
+        resourcesRequested.removeFirst();
     }
 
     public void releaseNextResource() {
         if (!resourcesBeingUsed.isEmpty()) {
-            Resource resource = resourcesBeingUsed.poll();
+            Resource resource = resourcesBeingUsed.removeFirst();
             ResourceConfigScreen.mutexAcquire();
             resource.releaseResource();
             ResourceConfigScreen.mutexRelease();
-            System.out.println("Processo " + this.id + " liberou recurso " + resource.getName());
+            String msg = ("Processo " + this.id + " liberou recurso " + resource.getName());
+            displayScreen.log(msg);
+            System.out.println(msg);
         }
     }
 

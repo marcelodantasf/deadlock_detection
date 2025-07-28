@@ -125,8 +125,8 @@ public class DisplayScreen extends JFrame{
                     processModel.addRow(new Object[]{
                         p.getProcessId(),
                         status,
-                        "Recursos usados", // Replace with actual data
-                        "Recursos esperados" // Replace with actual data
+                        p.getResourceBeingUsedList(), // Replace with data being used
+                        p.getResourceRequested() // Replace with data request
                     });
                 }
                 
