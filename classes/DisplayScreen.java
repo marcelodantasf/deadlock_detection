@@ -120,8 +120,7 @@ public class DisplayScreen extends JFrame{
                 processModel.setRowCount(0);
                 
                 for (Process p : processList) {
-                    String status = p.isRunning() ? "Rodando" : "Bloqueado";
-                    // TODO: Add actual resource usage and waiting info
+                    String status = p.getState().toString().equals("TIMED_WAITING") ? "Rodando" : "Bloqueado";
                     processModel.addRow(new Object[]{
                         p.getProcessId(),
                         status,
