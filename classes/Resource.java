@@ -23,7 +23,9 @@ public class Resource {
     }
 
     public void releaseResource(){
+        ResourceConfigScreen.mutexAcquire();
         currentInstances.release();
+        ResourceConfigScreen.mutexRelease();
     }
 
     public String getName() {

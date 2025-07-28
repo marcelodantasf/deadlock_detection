@@ -64,17 +64,29 @@ public class Process extends Thread {
         this.running = true;
     }
 
-    public void kill(){
-        if(running) {
-            for (int i = resourcesBeingUsed.size() - 1; i>=0 ; i--){
-                Resource r = resourcesBeingUsed.get(i);
-                r.releaseResource();
-                resourcesBeingUsed.remove(r);
+    public void kill() {
+        if (running) {
+            running = false;
+            this.interrupt(); // Interrupt any waiting operations
+            
+            // Release all resources without holding mutex the entire time
+            while (!resourcesBeingUsed.isEmpty()) {
+                Resource resource = resourcesBeingUsed.get(0);
+                try {
+                    ResourceConfigScreen.mutexAcquire();
+                    resource.releaseResource();
+                    resourcesBeingUsed.remove(resource);
+                    ResourceConfigScreen.mutexRelease();
+                    
+                    String msg = "Processo " + this.id + " liberou recurso " + resource.getName() + " durante término";
+                    displayScreen.log(msg);
+                    System.out.println(msg);
+                } catch (Exception e) {
+                    ResourceConfigScreen.mutexRelease();
+                    break;
+                }
             }
-            this.running = false;
-            this.interrupt();
         }
-        return;
     }
 
     private Resource selectResource() {
