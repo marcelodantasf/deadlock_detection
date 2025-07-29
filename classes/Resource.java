@@ -2,6 +2,7 @@ import java.util.concurrent.Semaphore;
 
 public class Resource {
     public Semaphore currentInstances;
+    public Semaphore Mutex = new Semaphore(1, true);
 
     private final String name;
     private final int id;
@@ -22,10 +23,10 @@ public class Resource {
         } 
     }
 
-    public void releaseResource(){
-        ResourceConfigScreen.mutexAcquire();
-        currentInstances.release();
-        ResourceConfigScreen.mutexRelease();
+    public void releaseResource() {
+        if (currentInstances.availablePermits() < maxInstances) {
+            currentInstances.release();
+        }
     }
 
     public String getName() {

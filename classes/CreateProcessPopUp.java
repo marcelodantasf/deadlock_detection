@@ -1,7 +1,7 @@
-import java.util.ArrayList;
-import java.util.List;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -13,8 +13,9 @@ public class CreateProcessPopUp extends JDialog {
     private JTextField usageIntervalField;
     private Process createdProcess;
     private DisplayScreen displayScreen;
+    private OS os;
 
-    public CreateProcessPopUp(DisplayScreen parent, int processIdCount, List<Resource> resources, ArrayList<Process> processList) {
+    public CreateProcessPopUp(DisplayScreen parent, int processIdCount, List<Resource> resources, ArrayList<Process> processList, OS os) {
         super(parent, "Criar Novo Processo", true);
         setSize(400, 200);
         setLocationRelativeTo(parent);
@@ -22,6 +23,7 @@ public class CreateProcessPopUp extends JDialog {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         this.displayScreen = parent;
+        this.os = os;
 
         JLabel reqIntervalLabel = new JLabel("Intervalo entre requisições (s):");
         reqIntervalField = new JTextField();
@@ -93,6 +95,7 @@ public class CreateProcessPopUp extends JDialog {
             displayScreen.log(createdProcess.toString());
 
             processList.add(createdProcess);
+            os.addProcess(createdProcess);
             createdProcess.start();
 
             dispose();

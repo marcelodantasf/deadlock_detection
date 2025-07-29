@@ -15,6 +15,7 @@ public class DisplayScreen extends JFrame{
     private JTable processTable;
     private JButton killProcessButton;
     private JTextField processIdField;
+    private OS os;
 
     public int processIdCount = 0;
     public static Semaphore ProcessCount;
@@ -28,6 +29,7 @@ public class DisplayScreen extends JFrame{
 
         ProcessCount = new Semaphore(0, true);
         this.resourceList = resourceList;
+        this.os = os;
          
         // Create main panels
         JPanel controlPanel = createControlPanel();
@@ -41,6 +43,7 @@ public class DisplayScreen extends JFrame{
 
         os.setDisplayScreen(this);
         new Thread(this::updateDisplay).start();
+        os.start();
     }
 
     private JPanel createControlPanel() {
@@ -110,7 +113,7 @@ public class DisplayScreen extends JFrame{
     }
 
     private void openNewProcessPopUp() {
-        CreateProcessPopUp popup = new CreateProcessPopUp(this, processIdCount, this.resourceList, this.processList);
+        CreateProcessPopUp popup = new CreateProcessPopUp(this, processIdCount, this.resourceList, this.processList, this.os);
         popup.setVisible(true);
     }
 

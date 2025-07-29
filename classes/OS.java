@@ -1,12 +1,14 @@
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public class OS extends Thread{
+public class OS extends Thread {
     private final int verificationInterval;
     private DisplayScreen displayScreen;
 
-    private List<Process> processList;
+    private final List<Process> processList = new CopyOnWriteArrayList<>(); 
+    private final List<Resource> resourceList = new CopyOnWriteArrayList<>(); 
 
-    private int[] existentResources;
+    private int[] existentResources;  
     private int[] availableResources;
     private int[][] currentAlocation;
     private int[][] requisitions;
@@ -15,79 +17,68 @@ public class OS extends Thread{
         this.verificationInterval = verificationInterval;
     }
 
-    public DisplayScreen getDisplayScreen() {
-        return displayScreen;
+    public void addResource(Resource resource) {
+        resourceList.add(resource);
+        updateExistentResources(); 
     }
 
-    public void setDisplayScreen(DisplayScreen displayScreen) {
-        this.displayScreen = displayScreen;
+    public void addProcess(Process process) {
+        processList.add(process);
     }
 
-    public int getVerificationInterval() {
-        return verificationInterval;
-    }
-
-    public void setProcesses(List<Process> processList) {
-        this.processList = processList;
-    }
-
-    public void setExistentResources(int[] existentResources) {
-        this.existentResources = existentResources;
-    }
-    
-    public void waiting(){
-        try {
-            sleep(1000 * this.verificationInterval);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    private void updateExistentResources() {
+        existentResources = new int[resourceList.size()];
+        for (int i = 0; i < resourceList.size(); i++) {
+            existentResources[i] = resourceList.get(i).getMaxInstances();
         }
     }
 
-    public void updateMatricesFromProcesses() {
-        if (processList == null || processList.isEmpty()) return;
-
+    public void updateMatrices() {
         int n = processList.size();
-        int m = existentResources.length;
+        int m = resourceList.size();
 
         currentAlocation = new int[n][m];
         requisitions = new int[n][m];
         availableResources = new int[m];
 
-        // Atualiza C e R com base nos processos
         for (int i = 0; i < n; i++) {
             Process p = processList.get(i);
             for (int j = 0; j < m; j++) {
-                currentAlocation[i][j] = p.getAllocated(j);
-                requisitions[i][j] = p.getRequested(j);
+                currentAlocation[i][j] = p.getAllocated(j); 
             }
         }
 
-        // Calcula recursos disponíveis: A = E - soma coluna(C)
-        for (int j = 0; j < m; j++) {
-            int sum = 0;
-            for (int i = 0; i < n; i++) {
-                sum += currentAlocation[i][j];
+        for (int i = 0; i < n; i++) {
+            Process p = processList.get(i);
+            for (int j = 0; j < m; j++) {
+                requisitions[i][j] = p.getRequested(j); 
             }
-            availableResources[j] = existentResources[j] - sum;
+        }
+
+        for (int j = 0; j < m; j++) {
+            int sumAllocated = 0;
+            for (int i = 0; i < n; i++) {
+                sumAllocated += currentAlocation[i][j];
+            }
+            availableResources[j] = existentResources[j] - sumAllocated;
         }
     }
-    
-    private void verify() {
-        int n = currentAlocation.length;
-        int m = currentAlocation[0].length;
+
+    private void verifyDeadlock() {
+        updateMatrices();
+
+        int n = processList.size();
+        int m = resourceList.size();
 
         boolean[] finished = new boolean[n];
         int[] work = availableResources.clone();
 
         boolean progress;
-
         do {
             progress = false;
-
             for (int i = 0; i < n; i++) {
                 if (!finished[i]) {
                     boolean canExecute = true;
-
                     for (int j = 0; j < m; j++) {
                         if (requisitions[i][j] > work[j]) {
                             canExecute = false;
@@ -101,34 +92,61 @@ public class OS extends Thread{
                         }
                         finished[i] = true;
                         progress = true;
-                        System.out.println("[SO] OK: Processo P" + i + " concluiu a execução.");
                     }
                 }
             }
         } while (progress);
 
+        StringBuilder deadlockInfo = new StringBuilder();
         boolean deadlockDetected = false;
+
         for (int i = 0; i < n; i++) {
             if (!finished[i]) {
                 deadlockDetected = true;
-                String errorMsg = ("\n######################################################");
-                errorMsg += ("\n[SO] ERRO: Deadlock detectado com processo P" + i);
-                errorMsg += ("\n######################################################\n");
-                displayScreen.log(errorMsg);
+                deadlockInfo.append("\nProcesso P").append(processList.get(i).getProcessId())
+                    .append(" está em deadlock.\nRecursos alocados:\n");
+
+                for (int j = 0; j < m; j++) {
+                    if (currentAlocation[i][j] > 0) {
+                        deadlockInfo.append("- ").append(resourceList.get(j).getName())
+                            .append(" (ID: ").append(resourceList.get(j).getId()).append(")\n");
+                    }
+                }
+
+                deadlockInfo.append("Recursos requisitados:\n");
+                for (int j = 0; j < m; j++) {
+                    if (requisitions[i][j] > 0) {
+                        deadlockInfo.append("- ").append(resourceList.get(j).getName())
+                            .append(" (ID: ").append(resourceList.get(j).getId()).append(")\n");
+                    }
+                }
             }
         }
 
-        if (!deadlockDetected) {
-            System.out.println("[SO] OK: Nenhum deadlock detectado.");
+        if (deadlockDetected) {
+            displayScreen.log("\n[SO] DEADLOCK DETECTADO");
+            displayScreen.log(deadlockInfo.toString());
+        } else {
+            displayScreen.log("[SO] Nenhum deadlock detectado.");
         }
     }
 
     @Override
     public void run() {
-        while (true) { 
-            waiting();
-            updateMatricesFromProcesses();
-            verify();
+        displayScreen.log("[SO] INICIADO! TEMPO DE CHECAGEM: " + this.verificationInterval);
+        while (true) {
+            try {
+                Thread.sleep(verificationInterval * 1000);
+                verifyDeadlock();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
         }
+    }
+
+    // Getters e setters
+    public void setDisplayScreen(DisplayScreen displayScreen) {
+        this.displayScreen = displayScreen;
     }
 }

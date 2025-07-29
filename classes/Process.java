@@ -1,7 +1,6 @@
-import java.util.Queue;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.LinkedList;
 
 public class Process extends Thread {
 
@@ -86,6 +85,8 @@ public class Process extends Thread {
                     break;
                 }
             }
+            resourcesBeingUsed.removeAll(resourceList);
+            resourcesRequested.removeAll(resourceList);
         }
     }
 
@@ -129,17 +130,21 @@ public class Process extends Thread {
         displayScreen.log(msg);
         System.out.println(msg);
 
-        ResourceConfigScreen.mutexAcquire();
+        try {
+            resourceSelected.Mutex.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         resourceSelected.acquireResource();
-        ResourceConfigScreen.mutexRelease();
+        resourceSelected.Mutex.release();
 
         resourcesBeingUsed.add(resourceSelected);
-        resourcesRequested.removeFirst();
+        resourcesRequested.remove(resourceSelected);
     }
 
     public void releaseNextResource() {
         if (!resourcesBeingUsed.isEmpty()) {
-            Resource resource = resourcesBeingUsed.removeFirst();
+            Resource resource = ((LinkedList<Resource>) resourcesBeingUsed).removeFirst();
             ResourceConfigScreen.mutexAcquire();
             resource.releaseResource();
             ResourceConfigScreen.mutexRelease();
@@ -151,21 +156,21 @@ public class Process extends Thread {
 
     @Override
     public void run() {
-        int deltR = this.intervalRequisition;
-        int deltU = this.intervalUsage;
+        int tempoRequisicao = this.intervalRequisition;
+        int tempoUso = this.intervalUsage;
 
-        int t = 0;
+        int tempo = 0;
 
         while (running) {
             waitASec();
             if(!running) break;
-            t++;
+            tempo++;
 
-            if (t % deltR == 0) {
+            if (tempo % tempoRequisicao == 0) {
                 requestResource();
             }
 
-            if (t % deltU == 0) {
+            if (tempo > tempoUso && (tempo - tempoUso) % tempoRequisicao == 0) {
                 releaseNextResource();
             }
         }
