@@ -156,21 +156,21 @@ public class Process extends Thread {
 
     @Override
     public void run() {
-        int deltR = this.intervalRequisition;
-        int deltU = this.intervalUsage;
+        int tempoRequisicao = this.intervalRequisition;
+        int tempoUso = this.intervalUsage;
 
-        int t = 0;
+        int tempo = 0;
 
         while (running) {
             waitASec();
             if(!running) break;
-            t++;
+            tempo++;
 
-            if (t % deltR == 0) {
+            if (tempo % tempoRequisicao == 0) {
                 requestResource();
             }
 
-            if (t % deltU == 0) {
+            if (tempo > tempoUso && (tempo - tempoUso) % tempoRequisicao == 0) {
                 releaseNextResource();
             }
         }

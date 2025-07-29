@@ -61,6 +61,7 @@ public class ResourceConfigScreen extends JFrame{
                     JOptionPane.showMessageDialog(this, "Nenhum recurso adicionado.");
                     return;
                 }
+
                 DisplayScreen displayScreen = new DisplayScreen(resources, os);
                 displayScreen.setVisible(true);
                 System.out.println();
@@ -92,6 +93,7 @@ public class ResourceConfigScreen extends JFrame{
                 idCount +=1 ;
                 Resource r = new Resource(nameResourceField.getText(), idCount, maxInstances);
                 resources.add(r);
+                os.addResource(r);
                 System.out.println("[ADD]: " + resources.get(idCount-1).toString());
 
                 nameResourceField.setText("");
