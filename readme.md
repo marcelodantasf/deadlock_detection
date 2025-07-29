@@ -78,13 +78,13 @@ envolvidos no deadlock.
 
 ---
 ### TO DO:
-- [ ] Organização das classes: 
+- [x] Organização das classes: 
     - [x] Lógica e métodos dos recursos.
-    - [ ] Lógica e métodos dos processos.
-    - [ ] Lógica e métodos do S.O.
+    - [x] Lógica e métodos dos processos.
+    - [x] Lógica e métodos do S.O.
 
-- [ ] GUI:
+- [x] GUI:
     - [x] Config Screen do S.O.
     - [x] Config Screen de recursos.
-    - [ ] Display Screen.
-    - [ ] Logs.
+    - [x] Display Screen.
+    - [x] Logs.
