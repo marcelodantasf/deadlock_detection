@@ -1,7 +1,6 @@
-import java.util.Queue;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.LinkedList;
 
 public class Process extends Thread {
 
@@ -86,6 +85,8 @@ public class Process extends Thread {
                     break;
                 }
             }
+            resourcesBeingUsed.removeAll(resourceList);
+            resourcesRequested.removeAll(resourceList);
         }
     }
 
@@ -129,17 +130,21 @@ public class Process extends Thread {
         displayScreen.log(msg);
         System.out.println(msg);
 
-        ResourceConfigScreen.mutexAcquire();
+        try {
+            resourceSelected.Mutex.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         resourceSelected.acquireResource();
-        ResourceConfigScreen.mutexRelease();
+        resourceSelected.Mutex.release();
 
         resourcesBeingUsed.add(resourceSelected);
-        resourcesRequested.removeFirst();
+        resourcesRequested.remove(resourceSelected);
     }
 
     public void releaseNextResource() {
         if (!resourcesBeingUsed.isEmpty()) {
-            Resource resource = resourcesBeingUsed.removeFirst();
+            Resource resource = ((LinkedList<Resource>) resourcesBeingUsed).removeFirst();
             ResourceConfigScreen.mutexAcquire();
             resource.releaseResource();
             ResourceConfigScreen.mutexRelease();
