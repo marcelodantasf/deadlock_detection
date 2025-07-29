@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 import javax.swing.*;
 
 /*Antes de iniciar a simulação, o usuário deverá informar todos os tipos de recursos existentes
@@ -15,12 +16,28 @@ public class ResourceConfigScreen extends JFrame{
     private JTextField nameResourceField;
     //private JTextField idResourceField;
     private JTextField maxInstancesField;
+    private ArrayList<Resource> resources = new ArrayList<Resource>();
+
+    public static Semaphore Mutex = new Semaphore(1, true);
+
+    public static void mutexAcquire(){
+        try {
+            Mutex.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void mutexRelease(){
+        Mutex.release();
+    }
 
     public int idCount = 0;
     public int resourceTypeCount = 0;
-    public ArrayList<Resource> resources;
 
-    public ResourceConfigScreen() {
+    public ResourceConfigScreen(OS os) {
+        // TODO: Setar recursos no os, passar para a displayscreen e startar la
+        //lembrar de atualizar a lista de processos do SO toda vez q um novo processo for iniciado.
         setTitle("Configuração de Recursos");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -44,8 +61,9 @@ public class ResourceConfigScreen extends JFrame{
                     JOptionPane.showMessageDialog(this, "Nenhum recurso adicionado.");
                     return;
                 }
-                /*ExhibitionScreen exhibition = new ExhibitionScreen(resources);
-                exhibition.setVisible(true);*/
+
+                DisplayScreen displayScreen = new DisplayScreen(resources, os);
+                displayScreen.setVisible(true);
                 System.out.println();
                 for(int i = 0; i< resources.size(); i++){
                     System.out.println("recursos cadastrados: " + resources.get(i).toString());
@@ -75,10 +93,9 @@ public class ResourceConfigScreen extends JFrame{
                 idCount +=1 ;
                 Resource r = new Resource(nameResourceField.getText(), idCount, maxInstances);
                 resources.add(r);
+                os.addResource(r);
                 System.out.println("[ADD]: " + resources.get(idCount-1).toString());
 
-                /*ExhibitionScreen exhibition = new ExhibitionScreen(resources);
-                exhibition.setVisible(true);*/
                 nameResourceField.setText("");
                 maxInstancesField.setText("");
 
